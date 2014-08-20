@@ -6,6 +6,8 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"strings"
+
 	"github.com/samuelotter/i3ipc"
 )
 
@@ -42,7 +44,8 @@ type ExecAction struct {
 
 func (self *ExecAction) Invoke(event i3ipc.Event) error {
 	Debugf("ExecAction.Invoke %+v", self)
-	cmd := exec.Command(self.Args[0], self.Args[1:]...)
+	cmdstr := fmt.Sprintf("%s", strings.Join(self.Args, " "))
+	cmd := exec.Command("sh", "-c", cmdstr)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	StdIn, err := cmd.StdinPipe()
