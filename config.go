@@ -5,6 +5,8 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"os/user"
+	"path"
 	"strings"
 
 	"github.com/samuelotter/i3ipc"
@@ -23,7 +25,7 @@ type Config struct {
 
 type Action int
 const (
-	ActionIgnore = iota
+	ActionIgnore Action = iota
 	ActionExec
 )
 
@@ -32,8 +34,16 @@ var actionNames = map[string]Action {
 	"exec": ActionExec,
 }
 
-func ReadConfiguration(path string) (*Config, error) {
-	file, err := os.Open(path)
+func ReadConfiguration(configPath string) (*Config, error) {
+	if configPath == "" {
+		usr, err := user.Current()
+		if err != nil {
+			return nil, err
+		}
+		configPath = path.Join(usr.HomeDir, ".i3event")
+	}
+
+	file, err := os.Open(configPath)
 	defer file.Close()
 	if err != nil {
 		return nil, err

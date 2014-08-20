@@ -8,7 +8,7 @@ import (
 	"github.com/samuelotter/i3ipc"
 )
 
-var configFile = flag.String("config", "~/.i3event", "Path to config file.")
+var configFile = flag.String("config", "", "Path to config file.")
 var debug      = flag.Bool("debug", false, "Activate debug logging.")
 
 func Debugf(format string, args ...interface{}) {
