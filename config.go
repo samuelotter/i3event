@@ -8,30 +8,15 @@ import (
 	"os/user"
 	"path"
 	"strings"
-
-	"github.com/samuelotter/i3ipc"
 )
-
-type Rule struct {
-	Event   i3ipc.EventType
-	Change  string
-	Action  Action
-	Args    []string
-}
 
 type Config struct {
 	Rules []Rule
 }
 
-type Action int
-const (
-	ActionIgnore Action = iota
-	ActionExec
-)
-
-var actionNames = map[string]Action {
-	"ignore": ActionIgnore,
-	"exec": ActionExec,
+var actionNames = map[string]bool {
+	"ignore": true,
+	"exec": true,
 }
 
 func ReadConfiguration(configPath string) (*Config, error) {
@@ -67,15 +52,15 @@ func ReadConfiguration(configPath string) (*Config, error) {
 			if len(tokens) < 4 {
 				return nil, errors.New("Incomplete command bindevent, expected bindevent <event> <change> <action> [args..]")
 			}
-			action, ok := actionNames[tokens[3]]
+			_, ok := actionNames[tokens[3]]
 			if !ok {
 				return nil, fmt.Errorf("Invalid action: %s", tokens[3])
 			}
+			action := NewAction(tokens[3], tokens[4:])
 			rule := Rule{
 				Event:  eventTypes[tokens[1]],
 				Change: tokens[2],
 				Action: action,
-				Args:   tokens[4:],
 			}
 			rules = append(rules, rule)
 		default:
@@ -87,4 +72,3 @@ func ReadConfiguration(configPath string) (*Config, error) {
 		Rules: rules,
 	}, nil
 }
-
